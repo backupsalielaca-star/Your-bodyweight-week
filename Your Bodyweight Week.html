@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your Bodyweight Week</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eef3f1;--surface:#fbfdfc;--ink:#14282b;--muted:#51686b;--line:#cfdcd9;--accent:#1f6f69;--accent-ink:#fff;--done:#e3a72a;color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1e20;--surface:#162a2d;--ink:#e6f0ee;--muted:#93aaa8;--line:#2a4245;--accent:#5fc2b8;--accent-ink:#0f1e20;--done:#f0b93d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1e20;--surface:#162a2d;--ink:#e6f0ee;--muted:#93aaa8;--line:#2a4245;--accent:#5fc2b8;--accent-ink:#0f1e20;--done:#f0b93d;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;line-height:1.5}
+main{max-width:640px;margin:0 auto;padding:24px 16px 64px}
+h1{font-family:"Fraunces",Georgia,serif;font-size:2rem;line-height:1.15;margin:0 0 6px;font-weight:700}
+.lede{color:var(--muted);margin:0 0 20px}
+.week{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.tab{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 6px;font:inherit;cursor:pointer;text-align:center}
+.tab b{display:block;font-size:.95rem}.tab span{font-size:.78rem;color:var(--muted)}
+.tab[aria-selected="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.tab[aria-selected="true"] span{color:inherit;opacity:.85}
+.tab.complete::after{content:"✓ done";display:block;font-size:.72rem;color:var(--done)}
+.tab[aria-selected="true"].complete::after{color:inherit}
+:focus-visible{outline:3px solid var(--done);outline-offset:2px}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.head h2{font-family:"Fraunces",Georgia,serif;font-size:1.4rem;margin:0}
+.meta{color:var(--muted);font-size:.9rem}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:12px 0 6px}
+.bar i{display:block;height:100%;width:0;background:var(--done);transition:width .25s}
+.sec{margin:22px 0 8px;font-weight:700;color:var(--accent)}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+li label{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+li input{width:22px;height:22px;margin:2px 0 0;accent-color:var(--accent);flex:none}
+li .n{font-weight:700}li .r{color:var(--accent);font-weight:700;margin-left:6px}
+li .t{display:block;color:var(--muted);font-size:.88rem}
+li input:checked~div .n{text-decoration:line-through;opacity:.6}
+.timer{margin-top:28px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.timer output{font-family:"Fraunces",Georgia,serif;font-size:2rem;min-width:3.2ch;font-variant-numeric:tabular-nums}
+.timer button,.reset{border:1.5px solid var(--accent);background:transparent;color:var(--accent);border-radius:99px;padding:8px 14px;font:inherit;cursor:pointer}
+.timer button:hover,.reset:hover{background:var(--accent);color:var(--accent-ink)}
+.meal{margin-top:28px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:16px}
+.meal h2{font-family:"Fraunces",Georgia,serif;font-size:1.3rem;margin:0 0 4px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
+.stats span{border:1.5px solid var(--accent);color:var(--accent);border-radius:99px;padding:2px 12px;font-weight:700;font-size:.9rem}
+.meal ul{gap:4px;list-style:disc;padding-left:20px}.meal p{margin:10px 0 0}.meal .t{color:var(--muted);font-size:.88rem}
+.note{color:var(--muted);font-size:.9rem;margin-top:24px}
+.reset{margin-top:12px;font-size:.85rem}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>Your bodyweight week</h1>
+<p class="lede">Four short sessions for general fitness and mobility. No equipment, 20–30 minutes each. Tick off moves as you go.</p>
+<div class="week" role="tablist" id="tabs"></div>
+<section id="day" aria-live="polite"></section>
+<div class="timer"><output id="clock">0:00</output>
+<button data-s="30">30s</button><button data-s="45">45s</button><button data-s="60">60s</button><button data-s="0">Stop</button></div>
+<section class="meal"><h2>Post-workout power bowl</h2><div class="t">Lentil, egg and avocado bowl · about 10 min with pre-cooked lentils</div>
+<div class="stats"><span>~35 g protein</span><span>~18 g fiber</span><span>~550 kcal</span></div>
+<ul><li>¾ cup cooked lentils (canned works; rinse well)</li><li>2 eggs, boiled or fried</li><li>2 handfuls of spinach, wilted or raw</li><li>½ avocado, sliced</li><li>A handful of cherry tomatoes</li><li>¼ cup plain Greek yogurt, as a creamy topping</li><li>Lemon juice, salt, pepper, a pinch of cumin</li></ul>
+<p>Warm the lentils with the spices, pile on the spinach, then top with the eggs, avocado, tomatoes and a spoonful of yogurt. Finish with lemon.</p>
+<p class="t">Swaps: firm tofu or canned tuna for the eggs; chickpeas or black beans for the lentils. Numbers are rough estimates and vary by brand and portion size. Eat it within a couple of hours after training.</p></section>
+<p class="note">Leave 1–2 rest days between strength sessions (Mon / Tue / Thu / Sat works well). A brisk 20-minute walk on any other day is a good bonus. Move in a range that feels comfortable and stop if anything hurts sharply. If you have an injury or a health condition, check with a clinician first.</p>
+<button class="reset" id="reset">Reset week</button>
+</main>
+<script>
+var DAYS=[
+{k:"Mon",t:"Lower body + push",m:"About 28 min · 3 rounds",s:[
+["Warm-up",[["March in place","60 sec","Swing your arms and loosen up."],["Arm circles","10 each way","Start small, then go bigger."],["Hip circles","8 each way","Hands on hips, slow and wide."]]],
+["Main: 3 rounds, rest 45 sec between",[["Bodyweight squat","12 reps","Chest up, knees track over toes."],["Push-up (knees or incline OK)","8–10 reps","Body in one line, elbows about 45°."],["Reverse lunge","8 per side","Step back, drop the back knee softly."],["Glute bridge","12 reps","Squeeze at the top for 1 second."],["Forearm plank","30 sec","Ribs down, don’t let the hips sag."]]],
+["Cool-down",[["Standing hamstring stretch","30 sec per side","Hinge from the hips, back long."]]]]},
+{k:"Tue",t:"Mobility flow",m:"About 20 min · go slowly",s:[
+["Flow: 2 rounds",[["Cat–cow","10 reps","Move with your breath."],["World’s greatest stretch","5 per side","Lunge, elbow to instep, rotate up."],["90/90 hip switches","8 reps","Sit tall, rotate knees side to side."],["Thoracic rotation","8 per side","On all fours, hand behind head."],["Deep squat hold","30 sec","Hold a doorframe if you need to."],["Down dog to cobra","8 reps","Flow smoothly between the two."]]],
+["Finish",[["Seated hamstring reach","30 sec per side","Soft knee, no bouncing."],["Child’s pose","45 sec","Long exhales."]]]]},
+{k:"Thu",t:"Posterior chain + core",m:"About 25 min · 3 rounds",s:[
+["Warm-up",[["Cat–cow","8 reps","Wake up the spine."],["Bodyweight good morning","10 reps","Hands behind head, hinge at the hips."]]],
+["Main: 3 rounds, rest 40 sec between",[["Step-up on a stair","10 per side","Drive through the heel."],["Superman hold","10 reps, 2 sec each","Lift arms and legs gently."],["Dead bug","8 per side","Low back stays pressed down."],["Side plank","20 sec per side","Drop to the knee if needed."],["Wall sit","30 sec","Thighs near parallel."],["Bird dog","8 per side","Pause 2 sec, keep the hips level."]]],
+["Cool-down",[["Figure-4 glute stretch","30 sec per side","Lying down, ankle over opposite knee."]]]]},
+{k:"Sat",t:"Cardio + core",m:"About 22 min · 30 on / 30 off",s:[
+["Warm-up",[["Easy march or jog in place","2 min","Build up gradually."]]],
+["Intervals: 3 rounds, 30 sec work, 30 sec rest",[["Jumping jacks (or step jacks)","30 sec","Low-impact: step side to side."],["High knees (or marching)","30 sec","Stay tall."],["Mountain climbers","30 sec","Hands on a counter to ease it."],["Squat to reach","30 sec","Reach overhead as you stand."]]],
+["Core finish",[["Bicycle crunch","20 reps","Slow beats fast."],["Plank","40 sec","Squeeze glutes and quads."]]],
+["Cool-down",[["Quad stretch + calf stretch","30 sec per side","Hold a wall for balance."]]]]}
+];
+var KEY="bw-week-v1",state={},cur=0;
+try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){state={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function ids(d){var o=[];DAYS[d].s.forEach(function(sec,si){sec[1].forEach(function(x,xi){o.push(d+"-"+si+"-"+xi)})});return o}
+function pct(d){var a=ids(d),n=a.filter(function(i){return state[i]}).length;return[n,a.length]}
+function tabs(){var h="";DAYS.forEach(function(d,i){var p=pct(i);h+='<button class="tab'+(p[0]===p[1]?" complete":"")+'" role="tab" aria-selected="'+(i===cur)+'" data-i="'+i+'"><b>'+d.k+'</b><span>'+p[0]+"/"+p[1]+"</span></button>"});document.getElementById("tabs").innerHTML=h}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function render(){var d=DAYS[cur],p=pct(cur),h='<div class="head"><h2>'+d.t+'</h2><span class="meta">'+d.m+'</span></div><div class="bar"><i style="width:'+(p[0]/p[1]*100)+'%"></i></div><div class="meta">'+p[0]+" of "+p[1]+" moves done"+(p[0]===p[1]?" · nice work!":"")+"</div>";
+d.s.forEach(function(sec,si){h+='<div class="sec">'+esc(sec[0])+"</div><ul>";sec[1].forEach(function(x,xi){var id=cur+"-"+si+"-"+xi;h+='<li><label><input type="checkbox" data-id="'+id+'"'+(state[id]?" checked":"")+'><div><span class="n">'+esc(x[0])+'</span><span class="r">'+esc(x[1])+'</span><span class="t">'+esc(x[2])+"</span></div></label></li>"});h+="</ul>"});
+document.getElementById("day").innerHTML=h;tabs()}
+document.getElementById("tabs").addEventListener("click",function(e){var b=e.target.closest(".tab");if(b){cur=+b.dataset.i;render()}});
+document.getElementById("day").addEventListener("change",function(e){if(e.target.dataset.id){state[e.target.dataset.id]=e.target.checked;save();render()}});
+document.getElementById("reset").onclick=function(){state={};save();render()};
+var tm=null,clock=document.getElementById("clock");
+function show(s){clock.textContent=Math.floor(s/60)+":"+("0"+s%60).slice(-2)}
+document.querySelector(".timer").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;clearInterval(tm);var s=+b.dataset.s;show(s);if(!s)return;
+tm=setInterval(function(){s--;show(s);if(s<=0){clearInterval(tm);clock.textContent="Done";if(navigator.vibrate)try{navigator.vibrate(200)}catch(x){}}},1000)});
+render();
+</script>
+</body>
+</html>
